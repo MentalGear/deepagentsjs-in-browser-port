@@ -10,8 +10,11 @@
 
 import fs from "node:fs/promises";
 import fsSync from "node:fs";
-import path from "node:path";
+import * as path from "node:path";
 import { spawn } from "node:child_process";
+
+const SUPPORTS_NOFOLLOW =
+  typeof fsSync !== "undefined" && fsSync?.constants?.O_NOFOLLOW !== undefined;
 
 import fg from "fast-glob";
 import micromatch from "micromatch";
@@ -30,8 +33,6 @@ import {
   formatContentWithLineNumbers,
   performStringReplacement,
 } from "./utils.js";
-
-const SUPPORTS_NOFOLLOW = fsSync.constants.O_NOFOLLOW !== undefined;
 
 /**
  * Backend that reads and writes files directly from the filesystem.
@@ -52,6 +53,12 @@ export class FilesystemBackend implements BackendProtocol {
       maxFileSizeMb?: number;
     } = {},
   ) {
+    if (typeof process === "undefined" || !process.versions?.node) {
+      throw new Error(
+        "FilesystemBackend is only supported in Node.js environments. " +
+          "For browser environments, use JustBashBackend or StateBackend.",
+      );
+    }
     const { rootDir, virtualMode = false, maxFileSizeMb = 10 } = options;
     this.cwd = rootDir ? path.resolve(rootDir) : process.cwd();
     this.virtualMode = virtualMode;

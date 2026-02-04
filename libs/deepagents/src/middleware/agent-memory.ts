@@ -239,6 +239,9 @@ export function createAgentMemoryMiddleware(
     stateSchema: AgentMemoryStateSchema as any,
 
     beforeAgent(state: any) {
+      const isNode = typeof process !== "undefined" && !!process.versions?.node;
+      if (!isNode) return undefined;
+
       const result: Record<string, string> = {};
 
       // Load user memory if not already in state
