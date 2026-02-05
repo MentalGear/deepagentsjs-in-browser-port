@@ -77,6 +77,7 @@ export {
   StoreBackend,
   FilesystemBackend,
   JustBashBackend,
+  FileSystemAccessBackend,
   CompositeBackend,
   BaseSandbox,
   isSandboxBackend,

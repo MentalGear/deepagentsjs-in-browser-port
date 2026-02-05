@@ -30,6 +30,7 @@ export { StateBackend } from "./state.js";
 export { StoreBackend } from "./store.js";
 export { FilesystemBackend } from "./filesystem.js";
 export { JustBashBackend } from "./just-bash.js";
+export { FileSystemAccessBackend } from "./file-system-access.js";
 export { CompositeBackend } from "./composite.js";
 
 // Export BaseSandbox abstract class
