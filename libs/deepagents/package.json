@@ -31,6 +31,10 @@
     "typescript",
     "llm"
   ],
+  "browser": {
+    "./src/platform.js": "./src/platform.web.js",
+    "./dist/platform.js": "./dist/platform.web.js"
+  },
   "author": "LangChain",
   "license": "MIT",
   "bugs": {
@@ -44,6 +48,7 @@
     "just-bash": "^2.9.2",
     "langchain": "^1.2.17",
     "micromatch": "^4.0.8",
+    "pathe": "^2.0.3",
     "yaml": "^2.8.2",
     "zod": "^4.3.6"
   },

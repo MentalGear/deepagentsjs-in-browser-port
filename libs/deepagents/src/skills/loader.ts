@@ -24,12 +24,9 @@
  * @see https://agentskills.io/specification
  */
 
-import * as path from "node:path";
-import fs from "node:fs";
+import * as path from "pathe";
 import yaml from "yaml";
-
-// Helper to check if we're in Node.js
-const isNode = typeof process !== "undefined" && !!process.versions?.node;
+import { isNode, safeRequire } from "../platform.js";
 
 /** Maximum size for SKILL.md files (10MB) */
 export const MAX_SKILL_FILE_SIZE = 10 * 1024 * 1024;
@@ -106,6 +103,8 @@ interface ValidationResult {
  */
 function isSafePath(targetPath: string, baseDir: string): boolean {
   if (!isNode) return true; // Security checks skipped in browser for now
+  const fs = safeRequire("node:fs");
+  if (!fs) return true;
   try {
     // Resolve both paths to their canonical form (follows symlinks)
     const resolvedPath = fs.realpathSync(targetPath);
@@ -198,6 +197,9 @@ export function parseSkillMetadata(
   try {
     if (!content) {
       if (!isNode) return null;
+      const fs = safeRequire("node:fs");
+      if (!fs) return null;
+
       // Security: Check file size to prevent DoS attacks
       const stats = fs.statSync(skillMdPath);
       if (stats.size > MAX_SKILL_FILE_SIZE) {
@@ -211,7 +213,7 @@ export function parseSkillMetadata(
       content = fs.readFileSync(skillMdPath, "utf-8");
     }
 
-    const frontmatter = parseFrontmatter(content);
+    const frontmatter = content ? parseFrontmatter(content) : null;
 
     if (!frontmatter) {
       // eslint-disable-next-line no-console
@@ -300,6 +302,8 @@ function listSkillsFromDir(
   source: "user" | "project",
 ): SkillMetadata[] {
   if (!isNode) return [];
+  const fs = safeRequire("node:fs");
+  if (!fs) return [];
 
   // Check if skills directory exists
   const expandedDir = skillsDir.startsWith("~")
@@ -327,7 +331,7 @@ function listSkillsFromDir(
   const skills: SkillMetadata[] = [];
 
   // Iterate through subdirectories
-  let entries: fs.Dirent[];
+  let entries: any[];
   try {
     entries = fs.readdirSync(resolvedBase, { withFileTypes: true });
   } catch {

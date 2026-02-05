@@ -7,7 +7,7 @@
  */
 
 import micromatch from "micromatch";
-import { basename } from "path";
+import { basename } from "pathe";
 import type { FileData, GrepMatch } from "./protocol.js";
 
 // Constants

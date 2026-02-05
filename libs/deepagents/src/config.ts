@@ -5,9 +5,8 @@
  * for skills and agent memory middleware.
  */
 
-import * as path from "node:path";
-import fs from "node:fs";
-import os from "node:os";
+import * as path from "pathe";
+import { isNode, safeRequire } from "./platform.js";
 
 /**
  * Options for creating a Settings instance.
@@ -112,6 +111,9 @@ export function findProjectRoot(startPath?: string): string | null {
   if (!isNode) return null;
 
   try {
+    const fs = safeRequire("node:fs");
+    if (!fs) return null;
+
     let current = path.resolve(startPath || process.cwd());
 
     // Walk up the directory tree
@@ -156,15 +158,17 @@ function isValidAgentName(agentName: string): boolean {
  * @returns Settings instance with project detection and path management
  */
 export function createSettings(options: SettingsOptions = {}): Settings {
-  const isNode = typeof process !== "undefined" && !!process.versions?.node;
-
   const projectRoot = isNode ? findProjectRoot(options.startPath) : null;
 
   // Browser-safe home directory fallback
   let userDeepagentsDir = "/.deepagents";
+
   if (isNode) {
     try {
-      userDeepagentsDir = path.join(os.homedir(), ".deepagents");
+      const os = safeRequire("node:os");
+      if (os) {
+        userDeepagentsDir = path.join(os.homedir(), ".deepagents");
+      }
     } catch {
       // ignore
     }
@@ -189,7 +193,10 @@ export function createSettings(options: SettingsOptions = {}): Settings {
       const agentDir = this.getAgentDir(agentName);
       if (isNode) {
         try {
-          fs.mkdirSync(agentDir, { recursive: true });
+          const fs = safeRequire("node:fs");
+          if (fs) {
+            fs.mkdirSync(agentDir, { recursive: true });
+          }
         } catch {
           // ignore
         }
@@ -216,7 +223,10 @@ export function createSettings(options: SettingsOptions = {}): Settings {
       const skillsDir = this.getUserSkillsDir(agentName);
       if (isNode) {
         try {
-          fs.mkdirSync(skillsDir, { recursive: true });
+          const fs = safeRequire("node:fs");
+          if (fs) {
+            fs.mkdirSync(skillsDir, { recursive: true });
+          }
         } catch {
           // ignore
         }
@@ -235,7 +245,10 @@ export function createSettings(options: SettingsOptions = {}): Settings {
       const skillsDir = this.getProjectSkillsDir();
       if (isNode && skillsDir) {
         try {
-          fs.mkdirSync(skillsDir, { recursive: true });
+          const fs = safeRequire("node:fs");
+          if (fs) {
+            fs.mkdirSync(skillsDir, { recursive: true });
+          }
         } catch {
           // ignore
         }
@@ -250,7 +263,10 @@ export function createSettings(options: SettingsOptions = {}): Settings {
       const dir = path.join(projectRoot, ".deepagents");
       if (isNode) {
         try {
-          fs.mkdirSync(dir, { recursive: true });
+          const fs = safeRequire("node:fs");
+          if (fs) {
+            fs.mkdirSync(dir, { recursive: true });
+          }
         } catch {
           // ignore
         }
