@@ -31,7 +31,6 @@
  * ```
  */
 
-import fs from "node:fs";
 import { z } from "zod";
 import {
   createMiddleware,
@@ -42,6 +41,7 @@ import {
 } from "langchain";
 
 import type { Settings } from "../config.js";
+import { isNode, safeRequire } from "../platform.js";
 
 /**
  * Options for the agent memory middleware.
@@ -239,6 +239,10 @@ export function createAgentMemoryMiddleware(
     stateSchema: AgentMemoryStateSchema as any,
 
     beforeAgent(state: any) {
+      if (!isNode) return undefined;
+      const fs = safeRequire("node:fs");
+      if (!fs) return undefined;
+
       const result: Record<string, string> = {};
 
       // Load user memory if not already in state

@@ -24,9 +24,9 @@
  * @see https://agentskills.io/specification
  */
 
-import fs from "node:fs";
-import path from "node:path";
+import * as path from "pathe";
 import yaml from "yaml";
+import { isNode, safeRequire } from "../platform.js";
 
 /** Maximum size for SKILL.md files (10MB) */
 export const MAX_SKILL_FILE_SIZE = 10 * 1024 * 1024;
@@ -102,6 +102,9 @@ interface ValidationResult {
  * @returns True if the path is safely within baseDir, false otherwise
  */
 function isSafePath(targetPath: string, baseDir: string): boolean {
+  if (!isNode) return true; // Security checks skipped in browser for now
+  const fs = safeRequire("node:fs");
+  if (!fs) return true;
   try {
     // Resolve both paths to their canonical form (follows symlinks)
     const resolvedPath = fs.realpathSync(targetPath);
@@ -183,25 +186,34 @@ function parseFrontmatter(content: string): Record<string, unknown> | null {
  *
  * @param skillMdPath - Path to the SKILL.md file
  * @param source - Source of the skill ('user' or 'project')
+ * @param content - Optional content if already read
  * @returns SkillMetadata with all fields, or null if parsing fails
  */
 export function parseSkillMetadata(
   skillMdPath: string,
   source: "user" | "project",
+  content?: string,
 ): SkillMetadata | null {
   try {
-    // Security: Check file size to prevent DoS attacks
-    const stats = fs.statSync(skillMdPath);
-    if (stats.size > MAX_SKILL_FILE_SIZE) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        `Skipping ${skillMdPath}: file too large (${stats.size} bytes)`,
-      );
-      return null;
+    if (!content) {
+      if (!isNode) return null;
+      const fs = safeRequire("node:fs");
+      if (!fs) return null;
+
+      // Security: Check file size to prevent DoS attacks
+      const stats = fs.statSync(skillMdPath);
+      if (stats.size > MAX_SKILL_FILE_SIZE) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `Skipping ${skillMdPath}: file too large (${stats.size} bytes)`,
+        );
+        return null;
+      }
+
+      content = fs.readFileSync(skillMdPath, "utf-8");
     }
 
-    const content = fs.readFileSync(skillMdPath, "utf-8");
-    const frontmatter = parseFrontmatter(content);
+    const frontmatter = content ? parseFrontmatter(content) : null;
 
     if (!frontmatter) {
       // eslint-disable-next-line no-console
@@ -289,10 +301,16 @@ function listSkillsFromDir(
   skillsDir: string,
   source: "user" | "project",
 ): SkillMetadata[] {
+  if (!isNode) return [];
+  const fs = safeRequire("node:fs");
+  if (!fs) return [];
+
   // Check if skills directory exists
   const expandedDir = skillsDir.startsWith("~")
     ? path.join(
-        process.env.HOME || process.env.USERPROFILE || "",
+        (typeof process !== "undefined" ? process.env.HOME : "") ||
+          (typeof process !== "undefined" ? process.env.USERPROFILE : "") ||
+          "",
         skillsDir.slice(1),
       )
     : skillsDir;
@@ -313,7 +331,7 @@ function listSkillsFromDir(
   const skills: SkillMetadata[] = [];
 
   // Iterate through subdirectories
-  let entries: fs.Dirent[];
+  let entries: any[];
   try {
     entries = fs.readdirSync(resolvedBase, { withFileTypes: true });
   } catch {

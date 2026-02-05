@@ -558,6 +558,27 @@ When using a sandbox backend, the agent gains access to an `execute` tool that c
 
 See [examples/sandbox/local-sandbox.ts](examples/sandbox/local-sandbox.ts) for a complete implementation.
 
+### Browser Usage
+
+`deepagents` is fully isomorphic and runs in the browser. For browser environments, you should use the `JustBashBackend` (for a virtual filesystem and shell) or `FileSystemAccessBackend` (for interacting with local directories via the File System Access API).
+
+```typescript
+import { createDeepAgent, JustBashBackend } from "deepagents";
+
+// Create an agent with a virtual filesystem and bash shell in the browser
+const agent = createDeepAgent({
+  backend: () => new JustBashBackend(),
+});
+```
+
+### Future Work
+
+We are actively working on expanding the browser capabilities of `deepagents`:
+
+- **Persistence for Just-Bash**: Adding automatic state persistence to `IndexedDB` so that the virtual filesystem survives page refreshes.
+- **Isomorphic Skill Loading**: Enabling the `listSkills` and `parseSkillMetadata` utilities to work across both Node and Browser environments.
+- **Browser-Side Python support**: Exposing `just-bash`'s built-in `pyodide` support to allow agents to run Python scripts directly in the browser tab.
+
 ## Deep Agents Middleware
 
 Deep Agents are built with a modular middleware architecture. As a reminder, Deep Agents have access to:

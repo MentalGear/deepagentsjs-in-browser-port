@@ -8,10 +8,11 @@
  *   and optional glob include filtering, while preserving virtual path behavior
  */
 
-import fs from "node:fs/promises";
-import fsSync from "node:fs";
-import path from "node:path";
-import { spawn } from "node:child_process";
+import * as path from "pathe";
+import { isNode, safeRequire } from "../platform.js";
+
+const getFsSync = () => safeRequire("node:fs");
+const SUPPORTS_NOFOLLOW = !!getFsSync()?.constants?.O_NOFOLLOW;
 
 import fg from "fast-glob";
 import micromatch from "micromatch";
@@ -30,8 +31,6 @@ import {
   formatContentWithLineNumbers,
   performStringReplacement,
 } from "./utils.js";
-
-const SUPPORTS_NOFOLLOW = fsSync.constants.O_NOFOLLOW !== undefined;
 
 /**
  * Backend that reads and writes files directly from the filesystem.
@@ -52,6 +51,12 @@ export class FilesystemBackend implements BackendProtocol {
       maxFileSizeMb?: number;
     } = {},
   ) {
+    if (typeof process === "undefined" || !process.versions?.node) {
+      throw new Error(
+        "FilesystemBackend is only supported in Node.js environments. " +
+          "For browser environments, use JustBashBackend or StateBackend.",
+      );
+    }
     const { rootDir, virtualMode = false, maxFileSizeMb = 10 } = options;
     this.cwd = rootDir ? path.resolve(rootDir) : process.cwd();
     this.virtualMode = virtualMode;
@@ -98,6 +103,12 @@ export class FilesystemBackend implements BackendProtocol {
    *          Directories have a trailing / in their path and is_dir=true.
    */
   async lsInfo(dirPath: string): Promise<FileInfo[]> {
+    if (!isNode) {
+      console.log("isNode is false in lsInfo");
+      return [];
+    }
+    const fs = safeRequire("node:fs/promises");
+    if (!fs) return [];
     try {
       const resolvedPath = this.resolvePath(dirPath);
       const stat = await fs.stat(resolvedPath);
@@ -195,6 +206,10 @@ export class FilesystemBackend implements BackendProtocol {
     offset: number = 0,
     limit: number = 500,
   ): Promise<string> {
+    if (!isNode) return "Error: Filesystem not available";
+    const fs = safeRequire("node:fs/promises");
+    const fsSync = getFsSync();
+    if (!fs || !fsSync) return "Error: Filesystem not available";
     try {
       const resolvedPath = this.resolvePath(filePath);
 
@@ -252,10 +267,15 @@ export class FilesystemBackend implements BackendProtocol {
    * @returns Raw file content as FileData
    */
   async readRaw(filePath: string): Promise<FileData> {
+    if (!isNode) throw new Error("Filesystem not available");
+    const fs = safeRequire("node:fs/promises");
+    const fsSync = getFsSync();
+    if (!fs || !fsSync) throw new Error("Filesystem not available");
+
     const resolvedPath = this.resolvePath(filePath);
 
     let content: string;
-    let stat: fsSync.Stats;
+    let stat: any;
 
     if (SUPPORTS_NOFOLLOW) {
       stat = await fs.stat(resolvedPath);
@@ -290,6 +310,10 @@ export class FilesystemBackend implements BackendProtocol {
    * Returns WriteResult. External storage sets filesUpdate=null.
    */
   async write(filePath: string, content: string): Promise<WriteResult> {
+    if (!isNode) return { error: "Filesystem not available" };
+    const fs = safeRequire("node:fs/promises");
+    const fsSync = getFsSync();
+    if (!fs || !fsSync) return { error: "Filesystem not available" };
     try {
       const resolvedPath = this.resolvePath(filePath);
 
@@ -342,6 +366,10 @@ export class FilesystemBackend implements BackendProtocol {
     newString: string,
     replaceAll: boolean = false,
   ): Promise<EditResult> {
+    if (!isNode) return { error: "Filesystem not available" };
+    const fs = safeRequire("node:fs/promises");
+    const fsSync = getFsSync();
+    if (!fs || !fsSync) return { error: "Filesystem not available" };
     try {
       const resolvedPath = this.resolvePath(filePath);
 
@@ -417,6 +445,9 @@ export class FilesystemBackend implements BackendProtocol {
     dirPath: string = "/",
     glob: string | null = null,
   ): Promise<GrepMatch[] | string> {
+    if (!isNode) return "Filesystem not available";
+    const fs = safeRequire("node:fs/promises");
+    if (!fs) return "Filesystem not available";
     // Validate regex
     try {
       new RegExp(pattern);
@@ -462,6 +493,9 @@ export class FilesystemBackend implements BackendProtocol {
     baseFull: string,
     includeGlob: string | null,
   ): Promise<Record<string, Array<[number, string]>> | null> {
+    if (!isNode) return null;
+    const cp = safeRequire("node:child_process");
+    if (!cp) return null;
     return new Promise((resolve) => {
       const args = ["--json"];
       if (includeGlob) {
@@ -469,15 +503,15 @@ export class FilesystemBackend implements BackendProtocol {
       }
       args.push("--", pattern, baseFull);
 
-      const proc = spawn("rg", args, { timeout: 30000 });
+      const proc = cp.spawn("rg", args, { timeout: 30000 });
       const results: Record<string, Array<[number, string]>> = {};
       let output = "";
 
-      proc.stdout.on("data", (data) => {
+      proc.stdout.on("data", (data: any) => {
         output += data.toString();
       });
 
-      proc.on("close", (code) => {
+      proc.on("close", (code: number | null) => {
         if (code !== 0 && code !== 1) {
           // Error (code 1 means no matches, which is ok)
           resolve(null);
@@ -526,7 +560,7 @@ export class FilesystemBackend implements BackendProtocol {
         resolve(results);
       });
 
-      proc.on("error", () => {
+      proc.on("error", (_err: any) => {
         resolve(null);
       });
     });
@@ -540,6 +574,9 @@ export class FilesystemBackend implements BackendProtocol {
     baseFull: string,
     includeGlob: string | null,
   ): Promise<Record<string, Array<[number, string]>>> {
+    if (!isNode) return {};
+    const fs = safeRequire("node:fs/promises");
+    if (!fs) return {};
     let regex: RegExp;
     try {
       regex = new RegExp(pattern);
@@ -618,6 +655,9 @@ export class FilesystemBackend implements BackendProtocol {
     pattern: string,
     searchPath: string = "/",
   ): Promise<FileInfo[]> {
+    if (!isNode) return [];
+    const fs = safeRequire("node:fs/promises");
+    if (!fs) return [];
     if (pattern.startsWith("/")) {
       pattern = pattern.substring(1);
     }
@@ -710,6 +750,9 @@ export class FilesystemBackend implements BackendProtocol {
     files: Array<[string, Uint8Array]>,
   ): Promise<FileUploadResponse[]> {
     const responses: FileUploadResponse[] = [];
+    if (!isNode) return responses;
+    const fs = safeRequire("node:fs/promises");
+    if (!fs) return responses;
 
     for (const [filePath, content] of files) {
       try {
@@ -745,6 +788,9 @@ export class FilesystemBackend implements BackendProtocol {
    */
   async downloadFiles(paths: string[]): Promise<FileDownloadResponse[]> {
     const responses: FileDownloadResponse[] = [];
+    if (!isNode) return responses;
+    const fs = safeRequire("node:fs/promises");
+    if (!fs) return responses;
 
     for (const filePath of paths) {
       try {
