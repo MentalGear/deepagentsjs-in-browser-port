@@ -11,11 +11,12 @@
   "dependencies": {
     "@langchain/anthropic": "^0.3.11",
     "deepagents": "workspace:*",
-    "just-bash": "^2.9.4",
     "esbuild-wasm": "^0.27.2",
+    "just-bash": "^2.9.4",
     "lucide-react": "^0.454.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "svelte": "^5.49.2"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",

@@ -1,6 +1,8 @@
 import * as esbuild from "esbuild-wasm";
 // @ts-ignore
 import { defineCommand } from "just-bash";
+// @ts-ignore
+import * as svelte from "svelte/compiler";
 
 let initialized = false;
 
@@ -32,16 +34,34 @@ export const esbuildTool = defineCommand("esbuild", async (args: string[], ctx: 
   }
 
   // Create a plugin to redirect esbuild's file access to just-bash's vFS
+  // and handle Svelte compilation
   const vfsPlugin = {
     name: 'vfs',
     setup(build: any) {
       build.onResolve({ filter: /.*/ }, (args: any) => {
         return { path: args.path, namespace: 'vfs' }
       })
+
+      build.onLoad({ filter: /\.svelte$/, namespace: 'vfs' }, async (args: any) => {
+        try {
+          const content = await ctx.fs.readFile(args.path);
+          const result = svelte.compile(content, {
+            filename: args.path,
+            generate: "client",
+          });
+          return { contents: result.js.code, loader: 'js' }
+        } catch (e: any) {
+          return { errors: [{ text: `Svelte compilation error in ${args.path}: ${e.message}` }] }
+        }
+      })
+
       build.onLoad({ filter: /.*/, namespace: 'vfs' }, async (args: any) => {
         try {
           const content = await ctx.fs.readFile(args.path);
-          return { contents: content, loader: 'ts' }
+          // Auto-detect loader based on extension
+          const ext = args.path.split('.').pop();
+          const loader = ['ts', 'tsx', 'js', 'jsx', 'json', 'css'].includes(ext) ? ext : 'ts';
+          return { contents: content, loader }
         } catch (e) {
           return { errors: [{ text: `File not found in vFS: ${args.path}` }] }
         }

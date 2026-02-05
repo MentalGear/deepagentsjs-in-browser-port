@@ -134,7 +134,7 @@ const App = () => {
             )}
           </div>
           <div className="flex flex-wrap gap-2 mb-4">
-            {["List files", "Create hello.ts and bundle it with esbuild", "Search for 'agent' in src"].map(prompt => (
+            {["List files", "Create a Svelte component and bundle it", "Search for 'agent' in src"].map(prompt => (
               <button
                 key={prompt}
                 onClick={() => setInput(prompt)}
