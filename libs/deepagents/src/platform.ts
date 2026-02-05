@@ -2,11 +2,6 @@
  * Platform-specific utilities for isomorphic execution.
  */
 
-import * as nodeFs from "node:fs";
-import * as nodeFsPromises from "node:fs/promises";
-import * as nodeOs from "node:os";
-import * as nodeChildProcess from "node:child_process";
-
 // Helper to check if we're in Node.js
 export const isNode =
   typeof process !== "undefined" &&
@@ -45,28 +40,29 @@ export async function getChildProcess() {
 }
 
 /**
- * Synchronous access to Node.js modules.
- * These are swapped out in the browser via package.json browser field.
- */
-export function getFsSync(): typeof nodeFs | null {
-  return isNode ? nodeFs : null;
-}
-
-export function getOsSync(): typeof nodeOs | null {
-  return isNode ? nodeOs : null;
-}
-
-/**
  * Safely require a Node.js module without breaking browser bundlers.
  */
 export function safeRequire(moduleName: string): any {
   if (isNode) {
-    if (moduleName === "node:fs" || moduleName === "fs") return nodeFs;
-    if (moduleName === "node:fs/promises" || moduleName === "fs/promises")
-      return nodeFsPromises;
-    if (moduleName === "node:os" || moduleName === "os") return nodeOs;
-    if (moduleName === "node:child_process" || moduleName === "child_process")
-      return nodeChildProcess;
+    try {
+      // Use standard require for CJS or use a dynamic trick for ESM Node
+      // Since this is primarily for Node-only backends, we use a more standard approach.
+      // Bundlers will be pointed to platform.web.ts anyway.
+      return eval(`require('${moduleName}')`);
+    } catch {
+      return null;
+    }
   }
   return null;
+}
+
+/**
+ * Synchronous access to Node.js modules.
+ */
+export function getFsSync(): any {
+  return safeRequire("node:fs");
+}
+
+export function getOsSync(): any {
+  return safeRequire("node:os");
 }

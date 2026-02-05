@@ -12,6 +12,11 @@ export default defineConfig({
       'node:async_hooks': path.resolve(__dirname, 'src/mock-async-hooks.ts'),
       'node:zlib': path.resolve(__dirname, 'src/mock-zlib.ts'),
       'node:module': path.resolve(__dirname, 'src/mock-module.ts'),
+      'node:fs': path.resolve(__dirname, 'src/mock-fs.ts'),
+      'node:fs/promises': path.resolve(__dirname, 'src/mock-fs.ts'),
+      'node:os': path.resolve(__dirname, 'src/mock-os.ts'),
+      'node:child_process': path.resolve(__dirname, 'src/mock-child_process.ts'),
+      'fast-glob': path.resolve(__dirname, 'src/mock-fast-glob.ts'),
     },
   },
   define: {

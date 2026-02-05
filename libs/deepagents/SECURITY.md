@@ -64,3 +64,30 @@ This is the **highest risk** boundary and requires significant host-level mitiga
 | **StateBackend** | Browser / Node | **High** | Ephemeral file storage within the agent's state. |
 | **FileSystemAccessBackend**| Browser | **Medium** | User-controlled modification of local directories. |
 | **FilesystemBackend** | Node | **Low** | Local CLI tools or server-side agents (requires Docker). |
+
+## Browser Sandboxing Architectures
+
+When deploying `deepagents` in a browser, you must decide whether to run the agent in the main thread or in an isolated context (Web Worker or Iframe).
+
+### Option 1: Whole System in a Web Worker (Recommended)
+Running the entire agent logic, including orchestrations and `JustBashBackend`, inside a Web Worker.
+-   **Pros**:
+    -   **UI Responsiveness**: Graph execution and heavy tool calls (like complex `rg` searches) happen off-thread.
+    -   **Credential Isolation**: You can pass the API key into the worker and keep it out of the reach of most main-thread-focused XSS attacks.
+    -   **Logical Isolation**: Prevents the agent's internal state (which might contain sensitive tool results) from being easily inspected by main-thread scripts.
+-   **Cons**: No direct access to the DOM or certain browser APIs (requires message passing).
+
+### Option 2: Whole System in an Iframe (Strongest Isolation)
+Running the agent in a cross-origin Iframe.
+-   **Pros**:
+    -   **Origin Isolation**: The agent runs in a completely different origin. It cannot access the parent site's cookies, LocalStorage, or IndexedDB.
+    -   **XSS Protection**: Malicious output from the agent (e.g., in a preview) is trapped in the Iframe sandbox.
+-   **Cons**: Highest complexity; requires a robust `postMessage` bridge for all interactions.
+
+### Option 3: Tool-only Sandboxing (Default)
+Running the agent in the main thread, but using a sandboxed backend like `JustBashBackend`.
+-   **Pros**: Easiest to implement; standard integration.
+-   **Cons**: If a vulnerability exists in the orchestration layer (LangGraph/LangChain) that allows for remote code execution via a tool result, the attacker could gain control of the main thread and steal the user's API keys or session cookies.
+
+### Verdict: Which should you use?
+For production browser applications, **Option 1 (Web Worker)** is the sweet spot between security and ease of use. It protects the UI thread and provides a meaningful boundary for secrets. Use **Option 2 (Iframe)** if your agent will handle extremely sensitive user data or run untrusted code that requires protection against origin-level attacks.
