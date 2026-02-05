@@ -56,6 +56,9 @@ importers:
 
   examples/browser-vite:
     dependencies:
+      '@biomejs/wasm-web':
+        specifier: ^2.3.14
+        version: 2.3.14
       '@langchain/anthropic':
         specifier: ^0.3.11
         version: 0.3.34(@langchain/core@1.1.19(openai@6.17.0(ws@8.19.0)(zod@4.3.6)))(zod@4.3.6)
@@ -155,6 +158,9 @@ importers:
         specifier: ^4.3.6
         version: 4.3.6
     devDependencies:
+      '@biomejs/wasm-web':
+        specifier: ^2.3.14
+        version: 2.3.14
       '@langchain/langgraph-checkpoint':
         specifier: ^1.0.0
         version: 1.0.0(@langchain/core@1.1.19(openai@6.17.0(ws@8.19.0)(zod@4.3.6)))
@@ -339,6 +345,9 @@ packages:
   '@bcoe/v8-coverage@1.0.2':
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
     engines: {node: '>=18'}
+
+  '@biomejs/wasm-web@2.3.14':
+    resolution: {integrity: sha512-2zsulyk3VIjE+lJ4iZQIP2cJHKBiP5vDXBRnrK3T93w8qD+2lcXG7vzI+DUP0RshbmYgoThYv4NOyV5zAUdpZw==}
 
   '@borewit/text-codec@0.2.1':
     resolution: {integrity: sha512-k7vvKPbf7J2fZ5klGRD9AeKfUvojuZIQ3BT5u7Jfv+puwXkUBUT5PVyMDfJZpy30CBDXGMgw7fguK/lpOMBvgw==}
@@ -3387,6 +3396,8 @@ snapshots:
       '@babel/helper-validator-identifier': 8.0.0-beta.4
 
   '@bcoe/v8-coverage@1.0.2': {}
+
+  '@biomejs/wasm-web@2.3.14': {}
 
   '@borewit/text-codec@0.2.1': {}
 

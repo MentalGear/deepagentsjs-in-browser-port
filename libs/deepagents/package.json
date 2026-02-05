@@ -53,6 +53,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@biomejs/wasm-web": "^2.3.14",
     "@langchain/langgraph-checkpoint": "^1.0.0",
     "@langchain/openai": "^1.2.3",
     "@langchain/tavily": "^1.2.0",

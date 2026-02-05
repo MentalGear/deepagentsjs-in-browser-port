@@ -5,6 +5,7 @@ import { ChatAnthropic } from "@langchain/anthropic";
 // @ts-ignore
 import { Bash } from "just-bash";
 import { esbuildTool } from "./esbuild-tool.js";
+import { biomeTool } from "./biome-tool.js";
 
 interface Message {
   role: "user" | "assistant" | "system";
@@ -38,6 +39,7 @@ const App = () => {
     if (backendType === "just-bash") {
       const bash = new Bash();
       bash.registerCommand(esbuildTool);
+      bash.registerCommand(biomeTool);
       backend = new JustBashBackend(bash);
     } else {
       // @ts-ignore
@@ -134,7 +136,7 @@ const App = () => {
             )}
           </div>
           <div className="flex flex-wrap gap-2 mb-4">
-            {["List files", "Create a Svelte component and bundle it", "Search for 'agent' in src"].map(prompt => (
+            {["List files", "Create a Svelte component and bundle it", "Format code with biome", "Search for 'agent' in src"].map(prompt => (
               <button
                 key={prompt}
                 onClick={() => setInput(prompt)}
