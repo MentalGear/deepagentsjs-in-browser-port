@@ -811,7 +811,7 @@ export function createFilesystemMiddleware(
       // Filter tools based on backend capabilities
       let tools = request.tools;
       if (!supportsExecution) {
-        tools = tools.filter((t: { name: string }) => t.name !== "execute");
+        tools = tools.filter((t: any) => t.name !== "execute");
       }
 
       // Build system prompt - add execution instructions if available

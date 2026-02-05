@@ -571,6 +571,14 @@ const agent = createDeepAgent({
 });
 ```
 
+### Future Work
+
+We are actively working on expanding the browser capabilities of `deepagents`:
+
+- **Persistence for Just-Bash**: Adding automatic state persistence to `IndexedDB` so that the virtual filesystem survives page refreshes.
+- **Isomorphic Skill Loading**: Enabling the `listSkills` and `parseSkillMetadata` utilities to work across both Node and Browser environments.
+- **Browser-Side Python support**: Exposing `just-bash`'s built-in `pyodide` support to allow agents to run Python scripts directly in the browser tab.
+
 ## Deep Agents Middleware
 
 Deep Agents are built with a modular middleware architecture. As a reminder, Deep Agents have access to:
