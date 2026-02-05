@@ -22,5 +22,13 @@ export default defineConfig({
   define: {
     // For packages that expect process.env
     'process.env': {},
+  },
+  build: {
+    target: 'esnext'
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: 'esnext'
+    }
   }
 })

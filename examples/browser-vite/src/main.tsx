@@ -2,6 +2,9 @@ import React, { useState, useRef, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { createDeepAgent, JustBashBackend, FileSystemAccessBackend } from "deepagents";
 import { ChatAnthropic } from "@langchain/anthropic";
+// @ts-ignore
+import { Bash } from "just-bash";
+import { esbuildTool } from "./esbuild-tool.js";
 
 interface Message {
   role: "user" | "assistant" | "system";
@@ -33,7 +36,9 @@ const App = () => {
 
     let backend: any;
     if (backendType === "just-bash") {
-      backend = new JustBashBackend();
+      const bash = new Bash();
+      bash.registerCommand(esbuildTool);
+      backend = new JustBashBackend(bash);
     } else {
       // @ts-ignore
       const handle = await window.showDirectoryPicker();
@@ -80,8 +85,9 @@ const App = () => {
       {!agentRef.current ? (
         <div className="bg-white p-6 rounded-lg shadow-sm border space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Anthropic API Key</label>
+            <label htmlFor="api-key" className="block text-sm font-medium mb-1">Anthropic API Key</label>
             <input
+              id="api-key"
               type="password"
               className="w-full border rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
               placeholder="sk-ant-..."
@@ -90,8 +96,9 @@ const App = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Backend Type</label>
+            <label htmlFor="backend-type" className="block text-sm font-medium mb-1">Backend Type</label>
             <select
+              id="backend-type"
               className="w-full border rounded p-2"
               value={backendType}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setBackendType(e.target.value as any)}
@@ -126,10 +133,21 @@ const App = () => {
               </div>
             )}
           </div>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {["List files", "Create hello.ts and bundle it with esbuild", "Search for 'agent' in src"].map(prompt => (
+              <button
+                key={prompt}
+                onClick={() => setInput(prompt)}
+                className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-1 rounded"
+              >
+                {prompt}
+              </button>
+            ))}
+          </div>
           <div className="flex gap-2">
             <input
               className="flex-1 border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="Ask the agent to do something (e.g., 'List the files')"
+              placeholder="Ask the agent to do something..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
