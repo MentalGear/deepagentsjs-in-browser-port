@@ -6,6 +6,8 @@ import { ChatAnthropic } from "@langchain/anthropic";
 import { Bash } from "just-bash";
 import { esbuildTool } from "./esbuild-tool.js";
 import { biomeTool } from "./biome-tool.js";
+import { gitTool } from "./git-tool.js";
+import { Playground } from "./Playground.js";
 
 interface Message {
   role: "user" | "assistant" | "system";
@@ -40,6 +42,7 @@ const App = () => {
       const bash = new Bash();
       bash.registerCommand(esbuildTool);
       bash.registerCommand(biomeTool);
+      bash.registerCommand(gitTool);
       backend = new JustBashBackend(bash);
     } else {
       // @ts-ignore
@@ -79,9 +82,20 @@ const App = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-8 font-sans">
-      <header className="mb-8 border-b pb-4">
-        <h1 className="text-3xl font-bold mb-2 text-slate-800">Deep Agents Browser Example</h1>
-        <p className="text-slate-500">Run fully autonomous AI agents in your browser tab.</p>
+      <header className="mb-8 border-b pb-4 flex justify-between items-end">
+        <div>
+          <h1 className="text-3xl font-bold mb-2 text-slate-800">Deep Agents Browser Example</h1>
+          <p className="text-slate-500">Run fully autonomous AI agents in your browser tab.</p>
+        </div>
+        <button
+          onClick={() => {
+            window.history.pushState({}, "", "/playground");
+            window.dispatchEvent(new PopStateEvent("popstate"));
+          }}
+          className="text-sm bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded text-slate-600 mb-1"
+        >
+          Open Playground
+        </button>
       </header>
 
       {!agentRef.current ? (
@@ -169,11 +183,27 @@ const App = () => {
   );
 };
 
+const Root = () => {
+  const [path, setPath] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const handlePopState = () => setPath(window.location.pathname);
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  if (path === "/playground") {
+    return <Playground />;
+  }
+
+  return <App />;
+};
+
 const rootElement = document.getElementById("root");
 if (rootElement) {
   ReactDOM.createRoot(rootElement).render(
     <React.StrictMode>
-      <App />
+      <Root />
     </React.StrictMode>
   );
 }

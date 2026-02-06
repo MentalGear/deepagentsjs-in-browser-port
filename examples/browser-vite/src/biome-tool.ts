@@ -1,6 +1,8 @@
 // @ts-ignore
 import init, { Workspace } from "@biomejs/wasm-web";
 // @ts-ignore
+import biomeWasmUrl from "@biomejs/wasm-web/biome_wasm_bg.wasm?url";
+// @ts-ignore
 import { defineCommand } from "just-bash";
 
 let initialized = false;
@@ -8,7 +10,7 @@ let workspace: any;
 
 async function ensureBiome() {
   if (initialized) return;
-  await init();
+  await init(biomeWasmUrl);
   workspace = new Workspace();
 
   const { projectKey } = workspace.openProject({
@@ -32,11 +34,13 @@ export const biomeTool = defineCommand("biome", async (args: string[], ctx: any)
   await ensureBiome();
 
   const command = args[0] || "check";
-  const filePath = args[1];
+  const rawFilePath = args[1];
 
-  if (!filePath) {
+  if (!rawFilePath) {
     return { stdout: "", stderr: "Usage: biome <check|format|lint> <file>\n", exitCode: 1 };
   }
+
+  const filePath = ctx.fs.resolvePath(ctx.cwd || "/", rawFilePath);
 
   try {
     const content = await ctx.fs.readFile(filePath);

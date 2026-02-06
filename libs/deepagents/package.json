@@ -54,6 +54,7 @@
   },
   "devDependencies": {
     "@biomejs/wasm-web": "^2.3.14",
+    "@isomorphic-git/lightning-fs": "^4.6.2",
     "@langchain/langgraph-checkpoint": "^1.0.0",
     "@langchain/openai": "^1.2.3",
     "@langchain/tavily": "^1.2.0",
@@ -65,6 +66,8 @@
     "@vitest/ui": "^4.0.18",
     "dotenv": "^17.2.3",
     "esbuild-wasm": "^0.27.2",
+    "isomorphic-git": "^1.36.3",
+    "memfs": "^4.56.10",
     "tsdown": "^0.20.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",

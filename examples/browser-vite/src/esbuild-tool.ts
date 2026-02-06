@@ -9,7 +9,7 @@ let initialized = false;
 async function ensureEsbuild() {
   if (initialized) return;
   await esbuild.initialize({
-    wasmURL: "https://unpkg.com/esbuild-wasm/esbuild.wasm",
+    wasmURL: "https://unpkg.com/esbuild-wasm@0.27.2/esbuild.wasm",
   });
   initialized = true;
 }
@@ -17,15 +17,12 @@ async function ensureEsbuild() {
 export const esbuildTool = defineCommand("esbuild", async (args: string[], ctx: any) => {
   await ensureEsbuild();
 
-  // Basic implementation of esbuild command for the vFS
-  // usage: esbuild input.ts --outfile=output.js --bundle
-
   const entryPoints = args.filter(a => !a.startsWith("-"));
   const options: any = {
     bundle: args.includes("--bundle"),
     minify: args.includes("--minify"),
     format: "esm",
-    write: false, // We want the output in memory to write to vFS
+    write: false,
   };
 
   const outfileArg = args.find(a => a.startsWith("--outfile="));
@@ -33,13 +30,20 @@ export const esbuildTool = defineCommand("esbuild", async (args: string[], ctx: 
     options.outfile = outfileArg.split("=")[1];
   }
 
-  // Create a plugin to redirect esbuild's file access to just-bash's vFS
-  // and handle Svelte compilation
   const vfsPlugin = {
     name: 'vfs',
     setup(build: any) {
+      // Resolve svelte and other packages to CDN if they are not relative
+      build.onResolve({ filter: /^[^.\/]/ }, (args: any) => {
+        if (args.path === 'svelte' || args.path.startsWith('svelte/')) {
+          return { path: `https://esm.sh/${args.path}`, external: true }
+        }
+        return null;
+      });
+
       build.onResolve({ filter: /.*/ }, (args: any) => {
-        return { path: args.path, namespace: 'vfs' }
+        const path = ctx.fs.resolvePath(ctx.cwd || "/", args.path);
+        return { path, namespace: 'vfs' }
       })
 
       build.onLoad({ filter: /\.svelte$/, namespace: 'vfs' }, async (args: any) => {
@@ -58,7 +62,6 @@ export const esbuildTool = defineCommand("esbuild", async (args: string[], ctx: 
       build.onLoad({ filter: /.*/, namespace: 'vfs' }, async (args: any) => {
         try {
           const content = await ctx.fs.readFile(args.path);
-          // Auto-detect loader based on extension
           const ext = args.path.split('.').pop();
           const loader = ['ts', 'tsx', 'js', 'jsx', 'json', 'css'].includes(ext) ? ext : 'ts';
           return { contents: content, loader }
@@ -77,7 +80,6 @@ export const esbuildTool = defineCommand("esbuild", async (args: string[], ctx: 
 
     if (options.outfile && result.outputFiles) {
       for (const file of result.outputFiles) {
-        // Remove the 'vfs' prefix if any, but esbuild usually gives absolute paths
         await ctx.fs.writeFile(options.outfile, file.text);
       }
       return { stdout: `Successfully bundled to ${options.outfile}\n`, stderr: "", exitCode: 0 };

@@ -13,6 +13,7 @@
     "@langchain/anthropic": "^0.3.11",
     "deepagents": "workspace:*",
     "esbuild-wasm": "^0.27.2",
+    "isomorphic-git": "^1.36.3",
     "just-bash": "^2.9.4",
     "lucide-react": "^0.454.0",
     "react": "^18.3.1",

@@ -9,6 +9,7 @@ export default defineConfig({
     alias: {
       // Alias deepagents to the source directory in the monorepo
       'deepagents': path.resolve(__dirname, '../../libs/deepagents/src/index.ts'),
+      'path': 'pathe',
       'node:async_hooks': path.resolve(__dirname, 'src/mock-async-hooks.ts'),
       'node:zlib': path.resolve(__dirname, 'src/mock-zlib.ts'),
       'node:module': path.resolve(__dirname, 'src/mock-module.ts'),
