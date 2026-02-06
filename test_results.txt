@@ -1,0 +1,98 @@
+
+> deepagents@1.6.3 test
+> vitest run
+
+[33mTesting types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.[39m
+
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90m/app/libs/deepagents[39m
+
+ [32m✓[39m src/backends/git.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 60[2mms[22m[39m
+ [32m✓[39m src/backends/esbuild.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 717[2mms[22m[39m
+     [33m[2m✓[22m[39m should bundle a simple TS file in the virtual filesystem [33m 714[2mms[22m[39m
+ [32m✓[39m src/backends/biome.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 859[2mms[22m[39m
+     [33m[2m✓[22m[39m should format a JS file in the virtual filesystem [33m 500[2mms[22m[39m
+     [33m[2m✓[22m[39m should find lint issues [33m 356[2mms[22m[39m
+[90mstderr[2m | src/middleware/skills.test.ts[2m > [22m[2mcreateSkillsMiddleware[2m > [22m[2mbeforeAgent[2m > [22m[2mshould skip skills with invalid frontmatter
+[22m[39mSkipping /skills/user/invalid/SKILL.md: no valid YAML frontmatter found
+
+ [32m✓[39m src/backends/composite.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 275[2mms[22m[39m
+ [32m✓[39m src/middleware/skills.test.ts [2m([22m[2m33 tests[22m[2m)[22m[33m 457[2mms[22m[39m
+ [32m✓[39m src/middleware/memory.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 419[2mms[22m[39m
+ [32m✓[39m src/backends/filesystem.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 256[2mms[22m[39m
+ [32m✓[39m src/backends/store.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 264[2mms[22m[39m
+ [32m✓[39m src/backends/state.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 183[2mms[22m[39m
+[90mstderr[2m | src/skills/loader.test.ts[2m > [22m[2mSkill Loader Module[2m > [22m[2mparseSkillMetadata[2m > [22m[2mshould return null for missing frontmatter
+[22m[39mSkipping /tmp/deepagents-skills-test-DkcWl1/user-skills/no-frontmatter/SKILL.md: no valid YAML frontmatter found
+
+[90mstderr[2m | src/skills/loader.test.ts[2m > [22m[2mSkill Loader Module[2m > [22m[2mparseSkillMetadata[2m > [22m[2mshould return null when name is missing
+[22m[39mSkipping /tmp/deepagents-skills-test-cyaokQ/user-skills/missing-name/SKILL.md: missing required 'name' or 'description'
+
+[90mstderr[2m | src/skills/loader.test.ts[2m > [22m[2mSkill Loader Module[2m > [22m[2mparseSkillMetadata[2m > [22m[2mshould return null when description is missing
+[22m[39mSkipping /tmp/deepagents-skills-test-elVBc3/user-skills/missing-desc/SKILL.md: missing required 'name' or 'description'
+
+[90mstderr[2m | src/skills/loader.test.ts[2m > [22m[2mSkill Loader Module[2m > [22m[2mparseSkillMetadata[2m > [22m[2mshould truncate long descriptions
+[22m[39mDescription exceeds 1024 chars in /tmp/deepagents-skills-test-gejVGk/user-skills/long-desc/SKILL.md, truncating
+
+[90mstderr[2m | src/skills/loader.test.ts[2m > [22m[2mSkill Loader Module[2m > [22m[2mparseSkillMetadata[2m > [22m[2mshould warn but parse when name doesn't match directory
+[22m[39mSkill 'different-name' in /tmp/deepagents-skills-test-GFatjz/user-skills/my-skill/SKILL.md does not follow Agent Skills spec: name 'different-name' must match directory name 'my-skill'. Consider renaming to be spec-compliant.
+
+[90mstderr[2m | src/skills/loader.test.ts[2m > [22m[2mSkill Loader Module[2m > [22m[2mlistSkills[2m > [22m[2mshould skip skills with invalid frontmatter
+[22m[39mSkipping /tmp/deepagents-skills-test-rAeexm/user-skills/invalid-skill/SKILL.md: no valid YAML frontmatter found
+
+[90mstderr[2m | src/skills/loader.test.ts[2m > [22m[2mSkill Loader Module[2m > [22m[2mlistSkills[2m > [22m[2mshould handle mixed valid and invalid skills
+[22m[39mSkipping /tmp/deepagents-skills-test-TnIHZ4/user-skills/invalid-one/SKILL.md: missing required 'name' or 'description'
+
+ [32m✓[39m src/skills/loader.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 117[2mms[22m[39m
+ [32m✓[39m src/backends/local-sandbox.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 94[2mms[22m[39m
+ [32m✓[39m src/middleware/agent-memory.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32m✓[39m src/middleware/fs.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 80[2mms[22m[39m
+ [32m✓[39m src/config.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 72[2mms[22m[39m
+ [32m✓[39m src/backends/sandbox.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 108[2mms[22m[39m
+ [32m✓[39m src/middleware/index.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 70[2mms[22m[39m
+ [32m✓[39m src/backends/utils.test.ts [2m([22m[2m51 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m src/middleware/fs.eviction.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+[90mstderr[2m | src/middleware/summarization.test.ts[2m > [22m[2mcreateSummarizationMiddleware[2m > [22m[2mbackend offloading[2m > [22m[2mshould not proceed with summarization if backend write fails
+[22m[39mFailed to offload conversation history to /conversation_history/session_d7499ed6.md: Write failed
+
+ [32m✓[39m src/middleware/summarization.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m src/middleware/patch_tool_calls.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m src/middleware/utils.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m src/backends/protocol.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m src/backends/file-system-access.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [44m[1m TS [22m[49m src/agent.test-d.ts [2m([22m[2m9 tests[22m[2m)[22m
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Unhandled Errors [49m[22m[31m⎯⎯⎯⎯⎯⎯[39m
+[31m[1m
+Vitest caught 2 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.[22m[39m
+
+[31m⎯⎯⎯[39m[1m[41m Unhandled Source Error [49m[22m[31m⎯⎯⎯[39m
+[31m[1mTypeCheckError[22m: 'git' is declared but its value is never read.[39m
+[36m [2m❯[22m src/backends/git.test.ts:[2m4:1[22m[39m
+    [90m  2| [39m[35mimport[39m { [33mBash[39m } [35mfrom[39m [32m"just-bash"[39m[33m;[39m
+    [90m  3| [39m[35mimport[39m { [33mLocalSandboxBackend[39m } [35mfrom[39m [32m"./local-sandbox.js"[39m[33m;[39m
+    [90m  4| [39m[35mimport[39m [33m*[39m [35mas[39m git [35mfrom[39m [32m"isomorphic-git"[39m[33m;[39m
+    [90m   | [39m[31m^[39m
+    [90m  5| [39m[90m// @ts-ignore[39m
+    [90m  6| [39m[35mimport[39m { defineCommand } [35mfrom[39m [32m"just-bash"[39m[33m;[39m
+
+
+[31m⎯⎯⎯[39m[1m[41m Unhandled Source Error [49m[22m[31m⎯⎯⎯[39m
+[31m[1mTypeCheckError[22m: 'ctx' is declared but its value is never read.[39m
+[36m [2m❯[22m src/backends/git.test.ts:[2m8:61[22m[39m
+    [90m  6| [39m[35mimport[39m { defineCommand } [35mfrom[39m [32m"just-bash"[39m[33m;[39m
+    [90m  7| [39m
+    [90m  8| [39mconst gitTool = defineCommand("git", async (args: string[], ctx: any) …
+    [90m   | [39m                                                            [31m^[39m
+    [90m  9| [39m  [35mconst[39m command [33m=[39m args[[34m0[39m][33m;[39m
+    [90m 10| [39m  [90m// Basic mock[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39m
+
+
+[2m Test Files [22m [1m[32m24 passed[39m[22m[90m (24)[39m
+[2m      Tests [22m [1m[32m376 passed[39m[22m[90m (376)[39m
+[2mType Errors [22m [2mno errors[22m
+[2m     Errors [22m [1m[31m2 errors[39m[22m
+[2m   Start at [22m 16:49:40
+[2m   Duration [22m 12.43s[2m (transform 2.39s, setup 614ms, import 15.10s, tests 4.24s, environment 5ms, typecheck 3.46s)[22m

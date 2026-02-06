@@ -24,6 +24,7 @@ import {
  * Backend that uses Browser File System Access API.
  */
 export class FileSystemAccessBackend implements BackendProtocol {
+  readonly id = "fs-access";
   private rootHandle: FileSystemDirectoryHandle;
 
   constructor(rootHandle: FileSystemDirectoryHandle) {
