@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { Bash } from "just-bash";
-import { JustBashBackend } from "./just-bash.js";
+import { LocalSandboxBackend } from "./local-sandbox.js";
 import * as esbuild from "esbuild-wasm";
 // @ts-ignore
 import { defineCommand } from "just-bash";
@@ -63,11 +63,11 @@ const esbuildTool = defineCommand("esbuild", async (args: string[], ctx: any) =>
   }
 });
 
-describe("Esbuild Tool in JustBashBackend", () => {
+describe("Esbuild Tool in LocalSandboxBackend", () => {
   it("should bundle a simple TS file in the virtual filesystem", async () => {
     const bash = new Bash();
     bash.registerCommand(esbuildTool);
-    const backend = new JustBashBackend(bash);
+    const backend = new LocalSandboxBackend(bash);
 
     await backend.write("/index.ts", "export const hello = 'world';");
 

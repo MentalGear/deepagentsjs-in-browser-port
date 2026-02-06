@@ -4,7 +4,7 @@ import { Bash } from "just-bash";
 import { esbuildTool } from "./esbuild-tool.js";
 import { biomeTool } from "./biome-tool.js";
 import { gitTool } from "./git-tool.js";
-import { Terminal, Files, Play, Save } from "lucide-react";
+import { Terminal, Files, Play, Save, Upload, Download } from "lucide-react";
 
 export const Playground = () => {
   const [bash] = useState(() => {
@@ -62,6 +62,38 @@ export const Playground = () => {
     }
   };
 
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const content = event.target?.result;
+      if (typeof content === "string") {
+        await bash.fs.writeFile(`/${file.name}`, content);
+        setOutput(prev => prev + `\nUploaded ${file.name}\n`);
+        refreshFiles();
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleDownload = async () => {
+    if (!currentFile) return;
+    try {
+      const content = await bash.fs.readFile(currentFile);
+      const blob = new Blob([content], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = currentFile.split("/").pop() || "download";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e: any) {
+      setOutput(prev => prev + `\nDownload error: ${e.message}\n`);
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen bg-slate-900 text-slate-200 font-mono">
       <header className="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center">
@@ -75,11 +107,17 @@ export const Playground = () => {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar: Files */}
-        <aside className="w-64 border-r border-slate-700 p-4 overflow-y-auto">
-          <h2 className="text-sm uppercase tracking-wider text-slate-500 mb-4 flex items-center gap-2">
-            <Files className="w-4 h-4" /> Files
-          </h2>
-          <ul className="space-y-1">
+        <aside className="w-64 border-r border-slate-700 p-4 flex flex-col">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-sm uppercase tracking-wider text-slate-500 flex items-center gap-2">
+              <Files className="w-4 h-4" /> Files
+            </h2>
+            <label className="cursor-pointer hover:text-white" title="Upload File">
+              <Upload className="w-4 h-4" />
+              <input type="file" className="hidden" onChange={handleUpload} />
+            </label>
+          </div>
+          <ul className="space-y-1 flex-1 overflow-y-auto">
             {files.map(f => (
               <li
                 key={f}
@@ -98,11 +136,18 @@ export const Playground = () => {
           <div className="flex-1 p-4 flex flex-col bg-slate-950">
             <div className="flex justify-between items-center mb-2">
               <span className="text-xs text-slate-500">{currentFile || "No file selected"}</span>
-              {currentFile && (
-                <button onClick={handleSave} className="text-xs flex items-center gap-1 hover:text-white">
-                  <Save className="w-3 h-3" /> Save
-                </button>
-              )}
+              <div className="flex gap-4">
+                {currentFile && (
+                  <>
+                    <button onClick={handleDownload} className="text-xs flex items-center gap-1 hover:text-white">
+                      <Download className="w-3 h-3" /> Download
+                    </button>
+                    <button onClick={handleSave} className="text-xs flex items-center gap-1 hover:text-white">
+                      <Save className="w-3 h-3" /> Save
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
             <textarea
               className="flex-1 bg-transparent border-none outline-none resize-none text-slate-300"

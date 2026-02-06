@@ -560,14 +560,14 @@ See [examples/sandbox/local-sandbox.ts](examples/sandbox/local-sandbox.ts) for a
 
 ### Browser Usage
 
-`deepagents` is fully isomorphic and runs in the browser. For browser environments, you should use the `JustBashBackend` (for a virtual filesystem and shell) or `FileSystemAccessBackend` (for interacting with local directories via the File System Access API).
+`deepagents` is fully isomorphic and runs in the browser. For browser environments, you should use the `LocalSandboxBackend` (for a virtual filesystem and shell) or `FileSystemAccessBackend` (for interacting with local directories via the File System Access API).
 
 ```typescript
-import { createDeepAgent, JustBashBackend } from "deepagents";
+import { createDeepAgent, LocalSandboxBackend } from "deepagents";
 
 // Create an agent with a virtual filesystem and bash shell in the browser
 const agent = createDeepAgent({
-  backend: () => new JustBashBackend(),
+  backend: () => new LocalSandboxBackend(),
 });
 ```
 

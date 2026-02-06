@@ -1,14 +1,14 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { Bash } from "just-bash";
-import { JustBashBackend } from "./just-bash.js";
+import { LocalSandboxBackend } from "./local-sandbox.js";
 
-describe("JustBashBackend", () => {
+describe("LocalSandboxBackend", () => {
   let bash: Bash;
-  let backend: JustBashBackend;
+  let backend: LocalSandboxBackend;
 
   beforeEach(() => {
     bash = new Bash();
-    backend = new JustBashBackend(bash);
+    backend = new LocalSandboxBackend(bash);
   });
 
   it("should list files correctly", async () => {

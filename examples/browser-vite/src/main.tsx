@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import ReactDOM from "react-dom/client";
-import { createDeepAgent, JustBashBackend, FileSystemAccessBackend } from "deepagents";
+import { createDeepAgent, LocalSandboxBackend, FileSystemAccessBackend } from "deepagents";
 import { ChatAnthropic } from "@langchain/anthropic";
 // @ts-ignore
 import { Bash } from "just-bash";
@@ -43,7 +43,7 @@ const App = () => {
       bash.registerCommand(esbuildTool);
       bash.registerCommand(biomeTool);
       bash.registerCommand(gitTool);
-      backend = new JustBashBackend(bash);
+      backend = new LocalSandboxBackend(bash);
     } else {
       // @ts-ignore
       const handle = await window.showDirectoryPicker();

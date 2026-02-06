@@ -1,5 +1,5 @@
 /**
- * JustBashBackend: A backend that uses just-bash's virtual filesystem and shell.
+ * LocalSandboxBackend: A backend that uses just-bash's virtual filesystem and shell.
  *
  * This backend is ideal for browser environments as it provides a full
  * POSIX-like environment in-memory, including common utilities like rg, sed, etc.
@@ -28,8 +28,8 @@ import {
  * Backend that uses just-bash for all operations.
  * Implements SandboxBackendProtocol to support command execution.
  */
-export class JustBashBackend implements SandboxBackendProtocol {
-  readonly id = "just-bash";
+export class LocalSandboxBackend implements SandboxBackendProtocol {
+  readonly id = "local-sandbox";
   private bash: Bash;
 
   constructor(bashOrOptions?: Bash | any) {

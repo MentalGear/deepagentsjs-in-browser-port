@@ -1,10 +1,10 @@
-# JustBashVFS Access Approach
+# Local Sandbox VFS Access Approach
 
-The `JustBashBackend` provides a virtual POSIX-like filesystem in the browser via the `just-bash` library. There are three main ways to interact with this filesystem:
+The `LocalSandboxBackend` provides a virtual POSIX-like filesystem in the browser via the `just-bash` library. There are three main ways to interact with this filesystem:
 
 ## 1. Programmatic Access via `bash.fs` (Best for Performance)
 
-The `JustBashBackend` instance exposes (or can be passed) a `Bash` instance, which has a `fs` property implementing the `IFileSystem` interface. This is the most direct and performant way to manipulate files.
+The `LocalSandboxBackend` instance exposes (or can be passed) a `Bash` instance, which has a `fs` property implementing the `IFileSystem` interface. This is the most direct and performant way to manipulate files.
 
 ### Key Methods:
 - `readFile(path: string): Promise<string>` - Reads file as a UTF-8 string.
@@ -17,7 +17,7 @@ The `JustBashBackend` instance exposes (or can be passed) a `Bash` instance, whi
 
 ### Example:
 ```typescript
-const backend = new JustBashBackend();
+const backend = new LocalSandboxBackend();
 const fs = (backend as any).bash.fs; // Access internal fs
 
 // Write binary data
@@ -30,7 +30,7 @@ const readData = await fs.readFileBuffer("/hello.bin");
 
 ## 2. Higher-level Backend Methods (Best for Agent Logic)
 
-The `JustBashBackend` implements the `SandboxBackendProtocol`, providing unified methods that handle common agent requirements like line numbering and string replacement.
+The `LocalSandboxBackend` implements the `SandboxBackendProtocol`, providing unified methods that handle common agent requirements like line numbering and string replacement.
 
 ### Key Methods:
 - `read(path, offset, limit)`: Reads file with line numbers, useful for LLM context.

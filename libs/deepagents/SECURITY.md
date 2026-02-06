@@ -16,7 +16,7 @@ When an LLM is granted tool access, it becomes a proxy for potential malicious a
 
 `deepagents` is designed with pluggable backends that define the security boundary between the agent and the user system.
 
-### 1. The Virtual Filesystem Boundary (`JustBashBackend`)
+### 1. The Virtual Filesystem Boundary (`LocalSandboxBackend`)
 This is the **safest** boundary for browser-based applications.
 -   **Isolation**: The filesystem exists entirely in the browser's memory (or IndexedDB). It has no access to the user's real files.
 -   **Execution**: Commands run in a simulated shell environment (`just-bash`) implemented in TypeScript/WASM. It cannot spawn real processes or access host OS APIs.
@@ -47,7 +47,7 @@ This is the **highest risk** boundary and requires significant host-level mitiga
 ### For Browser Deployments (Client-side)
 
 1.  **Content Security Policy (CSP)**: Implement a strict CSP that limits the origins the browser tab can connect to. This prevents an agent from "calling home" with stolen data.
-2.  **Virtualization by Default**: Prefer `JustBashBackend` for general tasks. Only use `FileSystemAccessBackend` when the user explicitly needs the agent to modify their local files.
+2.  **Virtualization by Default**: Prefer `LocalSandboxBackend` for general tasks. Only use `FileSystemAccessBackend` when the user explicitly needs the agent to modify their local files.
 3.  **Human-in-the-Loop (HITL)**: Use the `interruptOn` configuration for sensitive tools (like `write_file` or `execute`). This forces the agent to ask for user approval before proceeding.
 
 ### For Both Environments
@@ -60,7 +60,7 @@ This is the **highest risk** boundary and requires significant host-level mitiga
 
 | Backend | Environment | Security Level | Best Use Case |
 | :--- | :--- | :--- | :--- |
-| **JustBashBackend** | Browser | **High** | Safe, ephemeral playgrounds and sandboxed execution. |
+| **LocalSandboxBackend** | Browser | **High** | Safe, ephemeral playgrounds and sandboxed execution. |
 | **StateBackend** | Browser / Node | **High** | Ephemeral file storage within the agent's state. |
 | **FileSystemAccessBackend**| Browser | **Medium** | User-controlled modification of local directories. |
 | **FilesystemBackend** | Node | **Low** | Local CLI tools or server-side agents (requires Docker). |
@@ -70,7 +70,7 @@ This is the **highest risk** boundary and requires significant host-level mitiga
 When deploying `deepagents` in a browser, you must decide whether to run the agent in the main thread or in an isolated context (Web Worker or Iframe).
 
 ### Option 1: Whole System in a Web Worker (Recommended)
-Running the entire agent logic, including orchestrations and `JustBashBackend`, inside a Web Worker.
+Running the entire agent logic, including orchestrations and `LocalSandboxBackend`, inside a Web Worker.
 -   **Pros**:
     -   **UI Responsiveness**: Graph execution and heavy tool calls (like complex `rg` searches) happen off-thread.
     -   **Credential Isolation**: You can pass the API key into the worker and keep it out of the reach of most main-thread-focused XSS attacks.
@@ -85,7 +85,7 @@ Running the agent in a cross-origin Iframe.
 -   **Cons**: Highest complexity; requires a robust `postMessage` bridge for all interactions.
 
 ### Option 3: Tool-only Sandboxing (Default)
-Running the agent in the main thread, but using a sandboxed backend like `JustBashBackend`.
+Running the agent in the main thread, but using a sandboxed backend like `LocalSandboxBackend`.
 -   **Pros**: Easiest to implement; standard integration.
 -   **Cons**: If a vulnerability exists in the orchestration layer (LangGraph/LangChain) that allows for remote code execution via a tool result, the attacker could gain control of the main thread and steal the user's API keys or session cookies.
 

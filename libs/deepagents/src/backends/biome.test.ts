@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { Bash } from "just-bash";
-import { JustBashBackend } from "./just-bash.js";
+import { LocalSandboxBackend } from "./local-sandbox.js";
 // @ts-ignore
 import init, { Workspace } from "@biomejs/wasm-web";
 // @ts-ignore
@@ -75,11 +75,11 @@ const biomeTool = defineCommand("biome", async (args: string[], ctx: any) => {
   }
 });
 
-describe("Biome Tool in JustBashBackend", () => {
+describe("Biome Tool in LocalSandboxBackend", () => {
   it("should format a JS file in the virtual filesystem", async () => {
     const bash = new Bash();
     bash.registerCommand(biomeTool);
-    const backend = new JustBashBackend(bash);
+    const backend = new LocalSandboxBackend(bash);
 
     await backend.write("/test.js", "function  test() { console.log('hello') }");
 
@@ -94,7 +94,7 @@ describe("Biome Tool in JustBashBackend", () => {
   it("should find lint issues", async () => {
     const bash = new Bash();
     bash.registerCommand(biomeTool);
-    const backend = new JustBashBackend(bash);
+    const backend = new LocalSandboxBackend(bash);
 
     // use of 'var' should trigger a lint warning/error
     await backend.write("/lint.js", "var x = 1;");

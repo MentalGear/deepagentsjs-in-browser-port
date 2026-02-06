@@ -48,4 +48,4 @@ A extremely fast, dependency-free linter for JavaScript.
 
 ## Next Steps for Implementation
 1.  Add `@biomejs/wasm-browser` dependency to the playground.
-2.  Create a `biome` custom command for `JustBashBackend` that initializes the WASM runtime and executes checks against the vFS.
+2.  Create a `biome` custom command for `LocalSandboxBackend` that initializes the WASM runtime and executes checks against the vFS.

@@ -19,7 +19,7 @@ To securely run the `browser-vite` example in a sandbox:
 1. **Host Page**: Handles the UI (terminal, editor) and manages the `lofi-web-sandbox` instance.
 2. **Sandbox Worker**:
    - Runs the `deepagents` graph.
-   - Hosts the `JustBashBackend` and its virtual filesystem.
+   - Hosts the `LocalSandboxBackend` and its virtual filesystem.
    - Executes tools (`git`, `esbuild`, `biome`) within the worker.
 3. **Communication**: Uses the sandbox's RPC mechanism to send user inputs to the agent and receive tool outputs/logs for the terminal.
 4. **API Proxying**: The host page can optionally proxy LLM requests to add another layer of security (e.g., stripping sensitive headers) and prevent the worker from needing direct internet access to the model provider.
@@ -29,6 +29,6 @@ To securely run the `browser-vite` example in a sandbox:
 Using `lofi-web-sandbox` in worker mode is the best way to transition from the current "playground" implementation to a production-ready, secure agent environment. It provides the necessary security boundaries while maintaining the high performance of the ported library.
 
 ## Next Steps
-- Implement a prototype `SandboxedBashBackend` that wraps `JustBashBackend` but runs inside a `lofi-web-sandbox` worker.
+- Implement a prototype `SandboxedBashBackend` that wraps `LocalSandboxBackend` but runs inside a `lofi-web-sandbox` worker.
 - Define a standard RPC protocol for tool execution and VFS access between the host and the worker.
 - Document CSP recommendations for host pages to further harden the environment.

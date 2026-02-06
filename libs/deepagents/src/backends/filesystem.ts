@@ -54,7 +54,7 @@ export class FilesystemBackend implements BackendProtocol {
     if (typeof process === "undefined" || !process.versions?.node) {
       throw new Error(
         "FilesystemBackend is only supported in Node.js environments. " +
-          "For browser environments, use JustBashBackend or StateBackend.",
+          "For browser environments, use LocalSandboxBackend or StateBackend.",
       );
     }
     const { rootDir, virtualMode = false, maxFileSizeMb = 10 } = options;
