@@ -3,16 +3,37 @@ import { Buffer } from "buffer";
 (self as any).global = self;
 
 import { Bash } from "just-bash";
+import { esbuildTool } from "./esbuild-tool.js";
+import { biomeTool } from "./biome-tool.js";
+import { gitTool } from "./git-tool.js";
 
 let bash: Bash;
 let port: MessagePort;
 let currentCwd = "/";
+
+const helpTool = {
+  name: "help",
+  execute: async (args: string[]) => {
+    const commands = Object.keys((bash as any).commands).sort();
+    return {
+      stdout: `Available commands:\n${commands.join(", ")}\n`,
+      stderr: "",
+      exitCode: 0
+    };
+  }
+};
 
 self.onmessage = async (e) => {
   if (e.data.type === 'INIT_PORT') {
     port = e.ports[0];
 
     bash = new Bash();
+    bash.registerCommand(esbuildTool);
+    bash.registerCommand(biomeTool);
+    bash.registerCommand(gitTool);
+    bash.registerCommand(helpTool);
+
+    await bash.exec('cd /');
 
     // Simple bridge for xterm
     port.onmessage = async (ev) => {

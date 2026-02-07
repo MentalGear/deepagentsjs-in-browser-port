@@ -1,0 +1,55 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - heading "DeepAgents Svelte Shell" [level=1] [ref=e5]
+      - button "Add File" [ref=e6] [cursor=pointer]
+    - generic [ref=e10]:
+      - textbox "Terminal input" [active] [ref=e11]
+      - generic [ref=e12]:
+        - generic [ref=e14]: DeepAgents Svelte Playground
+        - generic [ref=e16]: Initializing shell...
+        - generic [ref=e18]: Shell ready.
+        - generic [ref=e20]:
+          - generic [ref=e21]: /
+          - generic [ref=e22]: $ help
+        - generic [ref=e24]: just-bash shell builtins
+        - generic [ref=e26]: "These shell commands are defined internally. Type `help' to see this list."
+        - generic [ref=e28]: "Type `help name' to find out more about the function `name'."
+        - generic [ref=e31]: . kill
+        - generic [ref=e33]: ": let"
+        - generic [ref=e35]: "[ local"
+        - generic [ref=e37]: alias logout
+        - generic [ref=e39]: bg mapfile
+        - generic [ref=e41]: break popd
+        - generic [ref=e43]: builtin printf
+        - generic [ref=e45]: caller pushd
+        - generic [ref=e47]: cd pwd
+        - generic [ref=e49]: command read
+        - generic [ref=e51]: compgen readarray
+        - generic [ref=e53]: complete readonly
+        - generic [ref=e55]: continue return
+        - generic [ref=e57]: declare set
+        - generic [ref=e59]: dirs shift
+        - generic [ref=e61]: disown shopt
+        - generic [ref=e63]: echo source
+        - generic [ref=e65]: enable suspend
+        - generic [ref=e67]: eval test
+        - generic [ref=e69]: exec times
+        - generic [ref=e71]: exit trap
+        - generic [ref=e73]: export true
+        - generic [ref=e75]: false type
+        - generic [ref=e77]: fc typeset
+        - generic [ref=e79]: fg ulimit
+        - generic [ref=e81]: getopts umask
+        - generic [ref=e83]: hash unalias
+        - generic [ref=e85]: help unset
+        - generic [ref=e87]: history wait
+        - generic [ref=e89]: jobs
+        - generic [ref=e91]:
+          - generic [ref=e92]: /
+          - generic [ref=e93]: $
+  - generic [ref=e96]: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
