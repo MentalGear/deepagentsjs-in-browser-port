@@ -11,7 +11,7 @@ export class LofiSandbox extends HTMLElement {
     private _worker: Worker | null = null;
     private _config: SandboxConfig = { mode: 'iframe' };
     private _sessionId: string;
-    private _port: MessagePort | null = null;
+    public _port: MessagePort | null = null; // Made public for hacky access
     private _hubFrame: HTMLIFrameElement | null = null;
 
     constructor() {
@@ -89,6 +89,12 @@ export class LofiSandbox extends HTMLElement {
     private renderWorker() {
         if (this._config.workerUrl) {
             this._worker = new Worker(this._config.workerUrl, { type: 'module' });
+            this._worker.onerror = (e) => {
+                console.error("Worker Error:", e.message);
+                window.dispatchEvent(new CustomEvent('sandbox-log', {
+                    detail: { type: 'LOG', level: 'error', args: [`Worker Error: ${e.message}`] }
+                }));
+            };
         } else {
             const script = `
                 self.onmessage = (e) => {

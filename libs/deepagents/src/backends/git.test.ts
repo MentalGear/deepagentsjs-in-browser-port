@@ -1,10 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { Bash } from "just-bash";
 import { LocalSandboxBackend } from "./local-sandbox.js";
+import * as git from "isomorphic-git";
 // @ts-ignore
 import { defineCommand } from "just-bash";
 
-const gitTool = defineCommand("git", async (args: string[]) => {
+const gitTool = defineCommand("git", async (args: string[], ctx: any) => {
   const command = args[0];
   // Basic mock
   if (command === "init") {

@@ -7,12 +7,19 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 export default defineConfig({
   plugins: [
     react(),
-    nodePolyfills(),
+    nodePolyfills({
+      globals: {
+        Buffer: true,
+        global: true,
+        process: true,
+      },
+    }),
   ],
   resolve: {
     alias: {
       // Alias deepagents to the source directory in the monorepo
       'deepagents': path.resolve(__dirname, '../../libs/deepagents/src/index.ts'),
+      'buffer': 'buffer/',
       'path': 'pathe',
       'node:async_hooks': path.resolve(__dirname, 'src/mock-async-hooks.ts'),
       'node:zlib': path.resolve(__dirname, 'src/mock-zlib.ts'),
@@ -34,11 +41,16 @@ export default defineConfig({
   worker: {
     format: 'es',
     plugins: () => [
-      nodePolyfills(),
+      nodePolyfills({
+        globals: {
+          Buffer: true,
+          global: true,
+          process: true,
+        },
+      }),
     ]
   },
   optimizeDeps: {
-    include: ['buffer'],
     esbuildOptions: {
       target: 'esnext'
     }
