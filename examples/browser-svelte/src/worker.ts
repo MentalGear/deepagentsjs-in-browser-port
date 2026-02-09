@@ -2,50 +2,64 @@ import { Buffer } from "buffer";
 (self as any).Buffer = Buffer;
 (self as any).global = self;
 
-import { Bash } from "just-bash";
+import { Bash, defineCommand } from "just-bash";
 import { esbuildTool } from "./esbuild-tool.js";
 import { biomeTool } from "./biome-tool.js";
-import { gitTool } from "./git-tool.js";
+import { gitTool } from "./git-tool.ts";
 
 let bash: Bash;
-let port: MessagePort;
-let currentCwd = "/";
+let currentCwd = "/home/user";
 
-const helpTool = {
-  name: "help",
-  execute: async (args: string[]) => {
+// Custom clear command to send clear signal to terminal
+const clearCommand = defineCommand("clear", async () => {
+  self.postMessage({ type: "clear" });
+  return { stdout: "", stderr: "", exitCode: 0 };
+});
+
+const helpTool = defineCommand("help", async (args: string[]) => {
     const commands = Object.keys((bash as any).commands).sort();
     return {
       stdout: `Available commands:\n${commands.join(", ")}\n`,
       stderr: "",
       exitCode: 0
     };
-  }
-};
+});
+
+function initBash(files: Record<string, string> = {}) {
+    bash = new Bash({
+        customCommands: [clearCommand, gitTool, esbuildTool, biomeTool, helpTool],
+        files: {
+          "/home/user/.bashrc": 'export PS1="$ "',
+          "/home/user/README.txt":
+            "Welcome to deepagents browser playground!\n\nThis is a bash interpreter running entirely in your browser.\nAvailable tools: git, esbuild, biome.\n",
+          "/home/user/example.json": '{"name": "deepagents", "version": "1.0"}',
+          ...files,
+        },
+        cwd: "/home/user",
+        env: {
+          HOME: "/home/user",
+          USER: "user",
+          PATH: "/bin:/usr/bin",
+          SHELL: "/bin/bash",
+          TERM: "xterm-256color",
+        },
+    });
+    currentCwd = "/home/user";
+}
 
 self.onmessage = async (e) => {
-  if (e.data.type === 'INIT_PORT') {
-    port = e.ports[0];
+    const msg = e.data;
 
-    bash = new Bash();
-    bash.registerCommand(esbuildTool);
-    bash.registerCommand(biomeTool);
-    bash.registerCommand(gitTool);
-    bash.registerCommand(helpTool);
+    try {
+        if (msg.type === 'INIT_PORT' || msg.type === 'init') {
+            initBash(msg.files);
+            self.postMessage({ type: 'ready' });
+            self.postMessage({ type: 'cwd', cwd: currentCwd });
+        } else if (msg.type === 'exec') {
+            const cmd = msg.command;
+            const separator = "____CWD_SEPARATOR____";
+            const wrappedCommand = `${cmd}\necho -n "${separator}"\npwd`;
 
-    await bash.exec('cd /');
-
-    // Simple bridge for xterm
-    port.onmessage = async (ev) => {
-      if (ev.data.type === 'INPUT') {
-        const cmd = ev.data.data;
-        const separator = "____CWD_SEPARATOR____";
-
-        // We wrap the command to capture the CWD afterwards
-        // This ensures cd works across calls
-        const wrappedCommand = `${cmd}\necho -n "${separator}"\npwd`;
-
-        try {
             const result = await bash.exec(wrappedCommand, { cwd: currentCwd });
 
             let stdout = result.stdout;
@@ -58,33 +72,34 @@ self.onmessage = async (e) => {
                 stdout = parts.join("");
             }
 
-            port.postMessage({
-              type: 'OUTPUT',
-              stdout: stdout,
-              stderr: result.stderr,
-              exitCode: result.exitCode,
-              cwd: currentCwd
+            self.postMessage({
+                type: 'result',
+                id: msg.id,
+                stdout: stdout,
+                stderr: result.stderr,
+                exitCode: result.exitCode,
             });
-        } catch (err: any) {
-            port.postMessage({
-                type: 'OUTPUT',
-                stdout: "",
-                stderr: err.message,
-                exitCode: 1,
-                cwd: currentCwd
-            });
+            self.postMessage({ type: 'cwd', cwd: currentCwd });
+        } else if (msg.type === 'readFile') {
+            const content = await bash.fs.readFile(msg.path);
+            self.postMessage({ type: 'file', id: msg.id, content });
+        } else if (msg.type === 'writeFile') {
+            await bash.fs.writeFile(msg.path, msg.content);
+            self.postMessage({ type: 'written', id: msg.id });
+            self.postMessage({ type: 'log', message: `Added file: ${msg.path}` });
         }
-      } else if (ev.data.type === 'WRITE_FILE') {
-          try {
-              await bash.fs.writeFile(ev.data.path, ev.data.content);
-              port.postMessage({ type: 'LOG', message: `Added file: ${ev.data.path}` });
-          } catch (err: any) {
-              port.postMessage({ type: 'LOG', message: `Error adding file: ${err.message}` });
-          }
-      }
-    };
-
-    port.postMessage({ type: 'READY' });
-  }
+    } catch (err: any) {
+        self.postMessage({
+            type: 'error',
+            id: msg.id,
+            message: err.message
+        });
+    }
 };
+
+// Initial init
+initBash();
+self.postMessage({ type: 'ready' });
+self.postMessage({ type: 'cwd', cwd: currentCwd });
+
 export {};
