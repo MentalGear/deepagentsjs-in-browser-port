@@ -276,16 +276,27 @@
 
     worker.postMessage({ type: 'writeFile', path: filename, content });
   }
+
+  function resetShell() {
+    if (confirm('Are you sure you want to reset the shell? All unsaved data will be lost.')) {
+        terminal.clear();
+        worker.postMessage({ type: 'init' });
+    }
+  }
 </script>
 
 <div class="app-container">
   <header>
     <div class="header-content">
         <div>
-            <h1>just-bash Playground</h1>
-            <p>A bash interpreter running entirely in your browser via Web Worker</p>
+            <h1>DeepAgents Shell</h1>
+            <p>Full POSIX environment in your browser</p>
         </div>
-        <button onclick={addFile} class="add-file-btn">Add File</button>
+        <div class="header-actions">
+            <a href="/virtual-files/" class="nav-link">Virtual Files Demo</a>
+            <button onclick={resetShell} class="reset-btn">Reset</button>
+            <button onclick={addFile} class="add-file-btn">Add File</button>
+        </div>
     </div>
   </header>
 
@@ -360,6 +371,37 @@
 
   .add-file-btn:hover {
       background: #ff5d7a;
+  }
+
+  .header-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+  }
+
+  .nav-link {
+      color: #888;
+      text-decoration: none;
+      font-size: 0.9rem;
+  }
+
+  .nav-link:hover {
+      color: #eee;
+      text-decoration: underline;
+  }
+
+  .reset-btn {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      background: transparent;
+      color: #888;
+      border: 1px solid #444;
+      border-radius: 4px;
+  }
+
+  .reset-btn:hover {
+      color: #eee;
+      border-color: #666;
   }
 
   main {

@@ -18,8 +18,24 @@ const clearCommand = defineCommand("clear", async () => {
 
 const helpTool = defineCommand("help", async (args: string[]) => {
     const commands = Object.keys((bash as any).commands).sort();
+    let stdout = `\x1b[1;36mAvailable Commands:\x1b[0m\n\n`;
+
+    stdout += `\x1b[1mCommon Tools:\x1b[0m\n`;
+    stdout += `  ls, cat, mkdir, touch, cp, mv, rm, grep, sed, awk, jq\n\n`;
+
+    stdout += `\x1b[1mCustom DeepAgents Tools:\x1b[0m\n`;
+    stdout += `  git      - Integrated isomorphic-git\n`;
+    stdout += `  esbuild  - WASM bundler with Svelte 5 support\n`;
+    stdout += `  biome    - Fast formatter and linter\n\n`;
+
+    stdout += `\x1b[1mShell:\x1b[0m\n`;
+    stdout += `  cd, pwd, echo, export, history, clear, help\n\n`;
+
+    stdout += `\x1b[1mFull list:\x1b[0m\n`;
+    stdout += `  ${commands.join(", ")}\n`;
+
     return {
-      stdout: `Available commands:\n${commands.join(", ")}\n`,
+      stdout,
       stderr: "",
       exitCode: 0
     };
